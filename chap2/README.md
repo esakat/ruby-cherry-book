@@ -142,3 +142,97 @@ puts "Hello,\\n World!"  # => Hello,\n World!
 'ruby' == 'Ruby' # => false
 ```
 
+## 数値
+
+```ruby
+# 整数
+10
+# 小数
+1.5
+# 負の数
+-3
+
+
+# _を含めて、桁をわかりやすくできる(このとき_は無視される)
+1_000_000_000 # => 1000000000
+
+# 四則演算はもちろん可能
+1 + 3 - 5 # => -1
+2 * 5 / 5 # => 2 
+
+# 変数の前に-をつけると正負を反転できる
+n = 10
+-n # => -10
+
+# to_fメソッドで整数を小数にできる
+n = 10
+n.to_f # => 10.0
+
+# % は余剰を求めれる, **はべき乗を求めれる
+8 % 3 # => 2
+2 ** 5 # => 32
+
+# 演算子の比較は >, >=, <, <=が使える ==, !=で同値判定も可能
+3 > 3
+3 >= 3
+...
+
+# 演算子の優先順位は一般的な *,/ > +,-
+# ()で挟むことで優先度あげれるのも一般的なもの
+2 * (4 + 4) / 8 # => 2 
+
+# rubyには ++, --みたいな値増減演算子がない
+# 代わりに +=, -=が用意されている
+
+n = 10
+n += 1 # => 11
+n -= 10 # => 1
+
+
+# 文字列と数値の足し算はエラーになるよ jsみたいによしなにしてくれない
+1 + "1"
+# Traceback (most recent call last):
+#         3: from /usr/local/bin/irb:11:in `<main>'
+#         2: from (irb):43
+#         1: from (irb):43:in `+'
+# TypeError (String can't be coerced into Integer)
+
+# 型変換が必要
+1 + "1".to_i # => 2
+1 + "1".to_f # => 2.0
+
+# 逆も然り
+"Number is " + 3
+# Traceback (most recent call last):
+#        3: from /usr/local/bin/irb:11:in `<main>'
+#        2: from (irb):46
+#        1: from (irb):46:in `+'
+# TypeError (no implicit conversion of Integer into String)
+
+# 型変換が必要
+"Number is " + 3.to_s # => "Number is 3"
+```
+
+### 丸め誤差
+
+こういうやつ
+
+```ruby
+0.1 * 3.0 # => 0.30000000000000004
+0.1 * 3.0 == 0.3 # => false
+```
+
+Rational(有理数)クラスを使うと解消できる
+
+```ruby
+0.1r * 3.0r # => (3/10)
+0.1r * 3.0r == 0.3 # => true
+
+# 変数の場合はrationalizeメソッドで呼べるよ
+n = 0.1
+n.rationalize * 3.0r # => (3/10)
+
+# to_fで普通の小数に戻せる
+(n.rationalize * 3.0r).to_f # => 0.3
+ 
+```
