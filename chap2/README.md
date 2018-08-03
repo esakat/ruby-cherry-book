@@ -236,3 +236,113 @@ n.rationalize * 3.0r # => (3/10)
 (n.rationalize * 3.0r).to_f # => 0.3
  
 ```
+
+## 真偽値と条件分岐
+
+Rubyの真偽値のルール
+
+* false or nilであれば偽
+* それ以外は全て真
+
+(-1とかも真になるので要注意)
+
+nilが偽になるのはなぜか？  
+オブジェクトがnilかどうかで条件分岐する機会が多いから便利だよ  
+(Goとかだとちょっと冗長だよねイメージ)
+
+```ruby
+data = find_data
+if data # nilならfalseになる
+  'データがあります'
+else
+  'データがありません'  
+end
+```
+
+Goとかだとこうだよね
+
+```go
+data, err := findData()
+err != nil {
+	return err
+} else {
+	return data
+}
+```
+
+### 論理演算子
+
+他の言語と特に変わりない
+
+* `&&` : and条件
+* `||` : or条件
+* `!***` : 真偽値の反転
+
+or条件の方が優先度高、演算子のように()で包むと優先順変えれるよ
+
+### if文
+
+rubyのifは文じゃなくて式だった気がする
+
+rubyのif-else
+
+```ruby
+if conditionA 
+  # 条件A時の処理
+elsif conditionB
+  # 条件B時の処理
+else
+  # その他の時の処理
+end
+```
+
+Rubyのifは式で、最後に評価された値を返すのでif結果を代入できる
+
+```ruby
+
+conuntry = 'italy'
+greeting =
+    if conuntry == 'japan'
+      'こんにちは'
+    elsif conuntry == 'italy'
+      'ciao'
+    else
+      '???'
+    end
+# => "ciao"
+```
+
+### 後置if
+
+Rubyではifを修飾子として文の後ろに置ける
+
+```ruby
+# 普通のコード
+point = 7
+day = 1
+if day == 1
+  point *= 5 
+end
+point # => 35
+
+# 後置if
+point = 7
+day = 1
+point *= 5 if day == 1
+point # => 35
+```
+
+### if-then
+
+if, elsifの後ろにthneも入れれる  
+これを使うと条件と処理を１行にまとめれる  
+使用頻度は少なめ
+
+```ruby
+a = "hoge"
+if a == "hoge" then "hello"
+elsif a == "fuga" then "world!"
+else "bye"
+end
+# => "hello"
+```
