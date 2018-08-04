@@ -334,7 +334,7 @@ point # => 35
 
 ### if-then
 
-if, elsifの後ろにthneも入れれる  
+if, elsifの後ろにthenも入れれる  
 これを使うと条件と処理を１行にまとめれる  
 使用頻度は少なめ
 
@@ -346,3 +346,74 @@ else "bye"
 end
 # => "hello"
 ```
+
+## メソッドの定義
+
+Rubyはdefでメソッド定義できる
+
+```ruby
+def メソッド名(引数)
+  # 処理
+end
+```
+
+メソッド名もスネークケースで書くのが慣例  
+戻り値に関する情報はメソッド定義に出てこない  
+メソッドの処理内で最後に評価された式が戻り値になるので、`return`は不要  
+(一応returnは使えるけど、rubyでは使わないのが一般的)
+
+```ruby
+# 一般的なrubyの書き方
+def test(a)
+  if a == 'hoge'
+    'こんにちは'
+  else
+    'Hello'
+  end
+end
+
+# returnも一応使える
+def test2(a)
+  if a == 'hoge'
+    return 'こんにちは'
+  else
+    return 'Hello'
+  end
+end
+# 中身は両方同じ
+```
+
+returnはメソッドの途中で抜け出す時に使われることが多い
+
+```ruby
+def hoge(a)
+  return 'aが入力されていません' if a.nil?
+  
+  if a == 'hoge'
+    return 'こんにちは'
+  else
+    return 'Hello'
+  end 
+end
+
+hoge nil # => "aが入力されていません"
+```
+
+引数のないメソッドは宣言時に`()`が不要  
+つけてもいいけど一般的に外されるらしい
+
+```ruby
+# ()は省略できる
+def hello_world
+  'Hello, World!'
+end
+
+# 引数ありでも()を外せるけど、引数ありの場合は()をつけるのが一般的
+def hello_world name
+  "Hello, #{name}" 
+end
+hello_world 'esaka' # => "Hello, esaka"
+```
+
+
+
