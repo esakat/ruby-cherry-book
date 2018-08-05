@@ -270,4 +270,350 @@ charge(13) # => "man"
 (1..10).select { |n| n.even? } # => [2, 4, 6, 8, 10]
 ```
 
+## 配列もっと詳しく
+
+```ruby
+a = [1,3,5,7,9]
+# 同義
+a[1..3]
+a[1, 3]
+
+# values_atで値ごしも可能
+a.values_at(0, 4) # => => [1, 9]
+
+# マイナスの添字は最後から数えた要素
+a[-1] # => 9
+a[-2] # => 7
+# lastメソッドもあるよfirstメソッドも
+a.last # => 9
+a.last(2) # =>  [7, 9]
+a.first # => 1
+
+# 代入について
+# 範囲指定だと、要素数が減るよ
+a = [1,3,5,7,9]
+a[1, 3] = 100
+a # => [1, 100, 9]
+# pushメソッド
+a.push(10) # => [1, 100, 9, 10]
+
+# 配列の連結
+a = [1,2]
+b = [3,4]
+# concatは破壊的代入(aが更新される)
+a.concat(b)
+a # => [1,2,3,4]
+# + だと元のには影響ない
+# 副作用を考えると、こちらを使うのが推奨される 
+a + b # => [1,2,3,4]
+a # => [1,2]
+
+# 配列で集合の表現 |, -, &　を使える(使えるってだけ、集合使う場合はSetの方がいい)
+a = [1,2,3]
+b = [2,3,4]
+a | b # => [1, 2, 3, 4]
+a & b # => [2, 3]
+a - b # => [1]
+
+# 多重代入で余りを配列で受け取る.. *をつければいい
+a, *b = 1,2,3,4,5,6,7,8 
+a # => 1
+b # => [2, 3, 4, 5, 6, 7, 8]
+
+# メソッドの引数に配列を展開して渡したい(splat展開) これも*を使う
+a = []
+a.push([1,2,3])
+a # => [[1, 2, 3]] 配列の中に配列になっている
+a = []
+a.push(*[1,2,3])
+a # => [1, 2, 3]　展開されている
+```
+
+### 可変長引数
+
+`*`をつけて可変長引数を表現できる  
+可変長引数は配列として受け取れる
+
+```ruby
+def hoge(*c)
+  c.each { |n| puts "hello, #{n}"}
+end
+hoge('a', 'b')
+# => hello, a
+# => hello, b
+```
+
+### もうちょい配列
+
+```ruby
+# 配列の中で配列を展開したい
+a = [1, 2]
+[0, *a, 3, 4] # => [0, 1, 2, 3, 4]
+
+# 配列の比較は全ての要素が同じ時に真になる
+[1,2,3] == [1,2,3] # => true
+[1,2,3] == [1,3,2] # => false
+[1,2,3] == [1,2,3,4] # => false
+```
+
+### 文字列の配列をもっと簡単に
+
+```ruby
+# より短くできる
+%w!apple hoge orange! # => ["apple", "hoge", "orange"]
+# 改行かスペースが区切りになる
+%w(
+  orange
+  test
+  moon
+) # => ["orange", "test", "moon"]
+
+# 式展開とかしたいときは %Wの大文字の方を使って
+# 文字列にスペース入れたいときはバックスラッシュでエスケープ
+%w(
+  orange\ juice
+  moon
+) # => ["orange juice", "moon"]
+
+# 文字列を1文字区切りで配列にする
+'Ruby'.chars # => ["R", "u", "b", "y"]
+
+# 指定した区切り文字で配列に
+'abc,def,ghi'.split(',') # => ["abc", "def", "ghi"]
+```
+
+### 配列の初期化
+
+`[]`じゃなくて`Array.new`でおk
+```ruby
+#　引数を渡すと、その数分のnil埋め要素ができる
+a = Array.new(5) # => [nil, nil, nil, nil, nil]
+# 第二引数で初期値を渡せる
+a = Array.new(5, 'a') # => ["a", "a", "a", "a", "a"]
+# 第二引数はブロックでもう少し高度な生成も可能
+# 0始まりで１ずつ加算して、偶数は*10する
+a = Array.new(10) { |n| n.even? ? n * 10 : n } # => [0, 1, 20, 3, 40, 5, 60, 7, 80, 9]
+
+# 注意として、第二引数で渡すと参照値が全て同じになることがある
+a = Array.new(5, 'a') # => ["a", "a", "a", "a", "a"] # => ["a", "a", "a", "a", "a"]
+a[0].upcase!
+a # => ["A", "A", "A", "A", "A"]
+
+# ブロックで渡せば解決
+a = Array.new(5) {'a'}
+a[0].upcase!
+a # => ["A", "a", "a", "a", "a"]
+
+# これは文字列がRubyではミュータブルなものだから発生する
+# イミュータブルな数値クラスとかだと、わざわざブロックにしなくて良い(そもそも破壊的変更が不可) 
+```
+
+## ブロックについてもう少し
+
+### 添字も繰り返し内で欲しいとき
+
+```ruby
+fruits = %w!apple banana orange!
+fruits.each_with_index { |fruit, i| puts "#{i}: #{fruit}" }
+# 0: apple
+# 1: banana
+# 2: orange
+```
+
+これだとeachメソッドにしか使えない  
+`with_index`メソッドが単独で用意されているので組み合わせ
+
+```ruby
+fruits = %w!apple banana orange!
+fruits.map.with_index { |fruit, i| "#{i}: #{fruit}" }
+# => ["0: apple", "1: banana", "2: orange"]
+
+# 技術的にいうと、Enumeratorオブジェクトを返すものがwith_indexを呼べる
+>> fruits.map
+=> #<Enumerator: ["apple", "banana", "orange"]:map>
+>> fruits.each
+=> #<Enumerator: ["apple", "banana", "orange"]:each>
+>> fruits.delete_if
+=> #<Enumerator: ["apple", "banana", "orange"]:delete_if>
+```
+
+#### 添字を０以外始まり
+
+with_indexメソッドに引数を渡せばok
+
+```ruby
+fruits = %w!apple banana orange!
+fruits.map.with_index(1) { |fruit, i| "#{i}: #{fruit}" }
+# => ["1: apple", "2: banana", "3: orange"]
+```
+
+### 配列のブロック引数
+
+```ruby
+xy = [
+  # x座標, y座標
+  [1, 10],
+  [10, 2],
+  [4, 6], 
+]
+
+# 面積を求める
+xy.each do |n|
+  area = n[0] * n[1]
+  puts area
+end
+# 10
+# 20
+# 24
+
+# ブロック引数を対応する数にすれば、展開して受け取れる
+xy.each do |x, y|
+  area = x * y
+  puts area
+end
+
+# with_indexのように元から2つ受け取る場合は..? ()でくくってあげようしないと、xに配列で渡されて、yにindexが入る
+xy.each_with_index do |(x, y), i|
+  area = x * y
+  puts "#{i} : #{area}"
+end
+# 0 : 10
+# 1 : 20
+# 2 : 24
+```
+
+### ブロックローカル変数
+
+ブロック外と同名だけど別として扱いたい場合はブロック変数内で`;`の後に宣言すればいけるが
+これはほとんど使われない、見通しも悪いし
+
+```Ruby
+sum = 10
+[1,2,3].each do |n; sum|
+  sum = ...
+  ...
+  # この中でsumに影響を与えても、ブロックがいのsumには影響なし
+end
+```
+
+### do...end, {}の結合度の違い
+
+`{}`の方が結合度が強い
+
+```ruby
+# {}を使うときはメソッドの引数は必ず()で括ること 結合度で{}に取られてしまう
+[1,2,3].delete 5 { 'NG' }
+# SyntaxError ((irb):259: syntax error, unexpected '{', expecting end-of-input)
+# [1,2,3].delete 5 { 'NG' }
+[1,2,3].delete(5) { 'NG' } # => "NG"
+```
+
+### do...end, {}に続けてメソッド呼び出し
+
+```Ruby
+# こんな風に呼び出せるよ
+[1,2,3].map {|n| n * 5}.select(&:even?)
+# doendも同様に
+[1,2,3].map do |n| 
+  n * 5
+end.select do |n|
+  n.even?
+end
+```
+
+つなげるときは{}を使う方が好まれているようだよ
+
+## さまざな繰り返し処理
+
+### times
+
+ブロック処理を複数回繰り返したいとき
+
+```ruby
+sum = 0
+5.times {|n| sum += n}
+sum # => 10
+```
+
+### upto, downto
+
+nからmまで数値を増やして行きたい
+
+```ruby
+a = []
+10.upto(14) { |n| a << n }
+a # => [10, 11, 12, 13, 14]
+```
+
+downtoは逆
+
+### step
+
+nからmまで数値をxずつ飛ばしながらやりたい
+```ruby
+a = []
+1.step(10, 2) {|n| a << n}
+a # => [1, 3, 5, 7, 9]
+```
+
+### while, until
+
+ブロックを使わない繰り返し
+
+```ruby
+
+a = []
+# 条件が真の間繰り返される
+while a.size < 5
+  a << 1
+end
+
+# untilは条件が偽の場合
+until a.size > 5
+  a << 1
+end
+
+# 1行なら修飾子として後ろにおく方が良い
+a << 1 while a.size < 5 
+
+# begin, endで囲むと必ず１回は実行される
+begin
+  a << 1 
+end while false
+```
+
+### for
+
+eachメソッドを定義しているオブジェクトに対して実行可能  
+あんま使わない,rubyではeachを使うことが多いかも
+
+```ruby
+numbers = [1,2,3,4,5]
+for n in numbers do sum += n end
+```
+
+### loop
+
+無限ループを作りたいとき
+
+```ruby
+numbers = [*1..100]
+loop do
+  # ランダムに要素を取り出し
+  n = numbers.sample
+  puts n
+  break if n > 70
+end
+# 55
+# 15
+# 23 
+# 77
+# => nil ここで終わり
+```
+
+## Enumerableモジュール
+
+mapなどのメソッドは配列でなく、Enumrableのメソッド
+配列も範囲もEnumrableモジュールに属しているため  
+範囲でもmapとか呼べるよ
 
