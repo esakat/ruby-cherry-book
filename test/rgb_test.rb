@@ -7,4 +7,8 @@ class RgbTest < Minitest::Test
     assert_equal '#ffffff', to_hex(255, 255, 255)
     assert_equal '#10010f', to_hex(16, 1, 15)
   end
+
+  def test_to_ints
+    assert_equal [0, 0, 0], to_ints('#000000')
+  end
 end
