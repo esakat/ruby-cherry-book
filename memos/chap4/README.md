@@ -611,9 +611,68 @@ end
 # => nil ここで終わり
 ```
 
-## Enumerableモジュール
+### Enumerableモジュール
 
 mapなどのメソッドは配列でなく、Enumrableのメソッド
 配列も範囲もEnumrableモジュールに属しているため  
 範囲でもmapとか呼べるよ
+
+## 繰り返し処理の制御構文
+
+* break
+* next
+* redo
+
+### break
+
+繰り返し処理の脱出  
+他言語と特に違いなし(後置ifとかで条件指定するのはruby特有かも)
+
+多重ループの場合は一番内側の処理を抜ける
+
+#### 一気に多重ループを抜け出す場合
+
+```ruby
+catch タグ do
+  throw タグ
+end
+```
+
+catch, throw、　javaとかだと例外処理だけどRubyだと例外関係ない
+
+```ruby
+fruits = %w!apple banana orange grape!
+numbers = [*1..4]
+catch :done do
+  fruits.shuffle.each do |f|
+    numbers.shuffle.each do |n|
+      puts "#{f}, #{n}"
+      throw :done if f == 'orange' && n == 3  
+    end
+  end
+end
+# grape, 1
+# grape, 4
+# grape, 2
+# grape, 3
+# ..
+# orange, 3
+# => nil
+```
+
+### breakとreturnの違い
+
+breakは「繰り返しからの脱出」returnは「メソッドからの脱出」  
+そもそもrubyでは余りreturnとかは使わない..ので余り使うテクではない
+
+
+### next
+
+繰り返し処理を途中で中断して、次の処理に進める  
+他言語でいうcontiunue
+
+
+### redo
+
+繰り返し処理の、`その回の処理を最初からやり直す`場合に使う
 
