@@ -75,3 +75,104 @@ hash.delete('japan') # => "yen"
 hash # => {"us"=>"dollar"}
 
 ```
+
+## シンボル
+
+文字列と１対１で対応するオブジェクト`:シンボル名`で宣言できるよ
+
+### 文字列との違い
+
+クラスが違う
+
+```ruby
+'apple'.class # => String
+:apple.class # => Symbol
+```
+
+シンボルは内部では整数として管理されている、そのためequalの比較とかは文字列より高速にできる  
+同じシンボルは全く同じオブジェクトになる  
+大量に作成するときは、文字列よりシンボルのほうが効率よくなる
+
+```ruby
+:apple.object_id # => 1272988
+:apple.object_id # => 1272988
+:apple.object_id # => 1272988
+'apple'.object_id # => 70137994999860
+'apple'.object_id # => 70137994996200
+'apple'.object_id # => 70138007394200
+```
+
+シンボルはイミュータブルなオブジェクトですよ
+
+### シンボルの用途
+
+名前を識別できるようにしたいけど、文字列を使う必要がないもの  
+ハッシュのキーとかはシンボルがいいよ
+
+```ruby
+a = { :japan => 1, :us => 2, :eu => 3 }
+a[:japan] # => 1 // 文字列でやるより高速
+```
+
+Rubyの内部でもメソッドの情報はシンボルで管理されている
+```ruby
+'apple'.methods # => [:encode!, :include?, :%, :*, ...]
+```
+
+Rubyではシンボルが色々使われているのでRubyの思想を知るためにはいいかもね
+
+
+## ハッシュについてもう少し詳しく
+
+ハッシュのキーをシンボルにする場合は`=>`を使わなくても作れる  
+`シンボル名: 値`でいけるよ
+
+```ruby
+a = { :japan => 1, :us => 2 }
+b = { japan: 1, us: 2 }
+a == b # => true
+```
+
+これはかなり良く使われる手法です
+
+ハッシュのキーは同じ型で揃える必要はない(できるというだけで統一したほうがいいよ)
+値に関しても型は揃っている必要はない(これはよくあるよ)
+
+```ruby
+person = {
+  name: 'Alice',
+  age: 20,
+  friends: [:Bob, :John],
+  phones: {home: '0101122', mobile: '1112222'}
+}
+```
+
+### キーワード引数
+
+メソッドは引数がなにかよくわからないことあるよね  
+メソッド宣言時にキーワード引数を設定するとわかりやすくなるよ
+
+
+```ruby
+def get_number(num, count: 1, hoge: 3)
+  num * count * hoge
+end
+
+# 呼ぶときはキーワード引数指定
+get_number(1, count: 2, hoge: 1) # => 2
+
+# ないとエラー
+get_number(1, 2, 1)
+# ArgumentError (wrong number of arguments (given 3, expected 1))
+
+# 指定しないとデフォの値が使われる
+get_number(1) # => 3
+
+# キーワード引数を使うと、引数の順番も入れ替えれる
+get_number(1, hoge: 10, count: 20) # => 200
+
+# デフォルト値なしでも宣言できるよ
+def get_number(num, count: , hoge:)
+  num * count * hoge
+end 
+```
