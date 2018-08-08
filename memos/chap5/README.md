@@ -176,3 +176,149 @@ def get_number(num, count: , hoge:)
   num * count * hoge
 end 
 ```
+
+## ハッシュについてもう少し
+
+### よく使われるメソッド
+
+* keys
+* values
+* has_key?
+
+```ruby
+hash = {a: 1, b: 2, c: 3}
+hash.keys # => [:a, :b, :c]
+hash.values # => [1, 2, 3]
+hash.has_key(:a) # => true
+```
+
+### **で展開
+
+```ruby
+hash = {a: 1, b: 2, c: 3}
+# ハッシュリテラル内でのみ利用可能(もしくはmergeメソッド利用)
+{ hoge: 4, **hash } # => {:hoge=>4, :a=>1, :b=>2, :c=>3}
+{ hoge: 4 }.merge hash # => {:hoge=>4, :a=>1, :b=>2, :c=>3}
+```
+
+### 擬似キーワード引数
+
+ハッシュを受け取ってキーワード引数のように利用する
+
+```ruby
+def buy(menu, options = {})
+  drink = options[:drink]
+  potato = options[:potato]
+end
+
+buy('cheese', drink: true, potato: true)
+```
+
+昔はこれでやってたので古いコードだと残っているかも,  
+基本は新しいキーワード引数を使ったほうがいいよ(言語サポート機能なので)
+
+### **引数
+
+キーワード引数を使うと、メソッドに存在しないキーワードは受け取れない  
+でもオプション的に追加したい場合
+
+```ruby
+
+def buy(menu, test: true, **options)
+  if test
+      drink = options[:drink]
+      potato = options[:potato]
+  end
+end
+
+buy('cheese', test: false, drink: true, potato: true) # => nil
+```
+
+### 最後の引数がハッシュであれば、{}は省略できる
+
+```ruby
+def buy(menu, options = {})
+  drink = options[:drink]
+  potato = options[:potato]
+end
+
+buy('cheese', { drink: true, potato: true }) # 普通に考えるとこうだけど
+buy('cheese', drink: true, potato: true) # 引数の最後がハッシュであれば、これでおk
+```
+
+## ハッシュとブロックの{}
+
+```ruby
+def buy(options = {}, menu)
+  drink = options[:drink]
+  potato = options[:potato]
+end
+
+buy({ drink: true, potato: true }, 'cheese') # => これはOK
+# これはだめ,, ハッシュの{}がブロックの{}として解釈されてしまう
+buy { drink: true, potato: true }, 'cheese'
+Traceback (most recent call last):
+        1: from /usr/local/bin/irb:11:in `<main>'
+SyntaxError ((irb):38: syntax error, unexpected ':', expecting '}')
+buy { drink: true, potato: true }, 'chees...
+           ^
+(irb):38: Can't assign to true
+buy { drink: true, potato: true }, 'cheese' 
+```
+
+## ハッシュと配列
+
+```ruby
+# to_h, to_aで変換可能
+{ drink: true, potato: true }.to_a # => [[:drink, true], [:potato, true]]
+[[:drink, true], [:potato, true]].to_h # => {:drink=>true, :potato=>true}
+# to_hはRuby2.1からの新し目機能
+
+# 古いのだと下
+Hash[{ drink: true, potato: true }] # => {:drink=>true, :potato=>true}
+```
+
+## ハッシュの初期値
+
+ハッシュは存在しないキーを取得しようとするとnilを返す  
+Hash.newで宣言するときは初期値を設定できる
+
+```ruby
+h = Hash.new('default_value')
+h[:a] # => "default_value"
+h[:b] # => "default_value"
+# 初期値は全て同じオブジェクトで作成されるので、破壊的変更には要注意
+
+h[:b].upcase! 
+h[:c] # => "DEFAULT_VALUE" // 変わっちゃった
+```
+
+## シンボルについて
+
+シンボルはもう少し柔軟に宣言できる
+
+```ruby
+
+:12345 # => エラー
+# クォーテーションで囲めば通る
+:'12345' # => :"12345" 
+
+# 式展開も可能
+a = "hoge"
+:"#{a}" # => :hoge 
+```
+
+### %s, %i(式展開したい場合は%I)
+
+シンボルの作成とシンボルリストの作成
+
+```ruby
+%s!hoge hoge hoge! # => :"hoge hoge hoge"
+%i!hoge test moge! # => [:hoge, :test, :moge]
+```
+
+### シンボルと文字列の関係
+
+全く別物だけど`to_sym`, `to_s`メソッドで相互変換可能  
+ただメソッドによっては文字列とシンボルを同等に扱うものあったりする  
+(一般的には同等に扱わないほうが多いよ)
