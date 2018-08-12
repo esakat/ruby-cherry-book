@@ -180,3 +180,150 @@ end
 呼び出しにはsetter, getterが必要だよ
 
 ちなみにクラス名も定数の1つとなっているので、クラスが定義されていない時のエラーは「定数が見つからない」と出るよ
+
+
+# クラスをもう少し
+
+## selfキーワード
+
+インスタンス自身を表すキーワード、他言語でいうthisとか  
+メソッドの内部で他のメソッドを呼ぶときは暗黙的にselfがついている(sample_seld.rb参照)
+
+`name=`メソッドだけはselfキーワードが必須
+
+```ruby
+class Sample
+  attr_accessor :name
+  # これは書き換えられる
+  def rename
+    self.name = 'Bob'   
+  end
+  # これはローカル変数の代入をしているだけ
+  def rename
+    name = 'Bob'   
+  end
+end
+```
+
+selfはインスタンスのことを表したり、クラス自身のことを表すことがある
+
+## クラスの継承
+
+サブクラス、スーパークラスについては他言語とそんな違いないので  
+sample_inheritance.rbを参照
+
+## メソッドの公開レベル
+
+3つのレベルがある
+
+* public
+* protected
+* private
+
+### public
+
+デフォだとinitialize以外、全てのメソッドがこれ  
+クラス外部から自由に呼び出せるメソッド
+
+### private
+
+クラス内部でのみ使えるメソッド
+
+```ruby
+class Sample
+  # ...
+  private # ここから下に定義されたメソッドはprivateメソッドになる
+  
+  def hello
+    puts "hello"
+  end
+end
+```
+
+厳密にはレシーバーを指定して呼び出せないメソッドを指す
+(のでクラス内で呼ぶ場合も、selfをつけるとエラーになる)
+
+またrubyの場合、サブクラスでもprivateメソッドが呼び出せる  
+意図せずにオーバライドしてしまうこともあるので、継承時はスーパークラスの実装もちゃんと把握することが大事
+
+
+```ruby
+class Sample
+ 
+  def hello
+    # レシーバーを指定しているので、これだとエラーになる
+    puts "#{self.name}"
+    # 下だとおk
+    puts "#{name}" 
+  end
+ 
+  private # ここから下に定義されたメソッドはprivateメソッドになる
+  
+  def name
+    "test"
+  end
+end
+```
+
+ちなみにクラスメソッドは上の方法でもprivateメソッドにはできない
+
+```ruby
+# class << self構文を使うか
+class Sample
+  class << self
+    private
+    
+    def hello
+      'Hello!'
+    end
+  end
+end
+Sample.hellp # => Error
+
+class Sample
+  def self.hello
+    'Hello!'
+  end
+  # メソッド定義をprivateに変更する
+  private_class_method :hello
+end
+```
+
+privateメソッドを先に書きたい場合は
+
+```ruby
+class Sample
+  private
+  # privateメソッドをかく
+ 
+  public 
+  # ここから下はpublicメソッドになる 
+end
+```
+
+また`private`キーワードの実態はメソッドなので、引数が渡せる(privateにしたいメソッドを渡す)
+
+```ruby
+class Sample
+  def hoge
+  end
+  def fuga
+  end
+  def moge
+  end
+
+  # fugaとmogeだけprivateメソッドになる
+  private :fuga, :moge
+end
+```
+
+### protected
+
+その宣言元のクラスとそのサブクラスのインスタンスメソッドからレシーバー付きで呼び出せるメソッド  
+privateとの違いはレシーバ付きかどうか
+
+## 継承について
+
+メソッドだけでなく、インスタンス変数も継承されるので意図しないとことがあるので要注意
+
+## 定数について
