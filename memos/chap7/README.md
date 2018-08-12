@@ -371,5 +371,79 @@ class Product
   # この対応が必要なのはミュータブルなオブジェクトだけで、数値やboolean、シンボルなどは不要
 end
 Product::DEFAULT_VALUE.upcase! # => FrozenError (can't modify frozen String)
-
 ```
+
+## その他の変数
+
+ローカル変数とインスタンス変数以外
+
+使用頻度は少ないので、あるよくらいを認識
+
+### クラスインスタンス変数
+
+```ruby
+class Sample
+  @name = "クラスインスタンス変数"
+  
+  def self.name
+    # クラスインスタンス変数を返す
+    @name
+  end
+  
+  def initialize(name)
+    # インスタンス変数に代入
+    @name = name
+  end
+  
+  def name
+    # インスタンス変数を返す
+    @name
+  end
+end
+```
+
+インスタンス変数はスーパークラスとサブクラスで同名の変数だと共有されていた  
+クラスインスタンス変数の場合は別々のものとして扱われる
+
+### クラス変数(@@変数名)
+
+クラスメソッド内、インスタンスメソッド内、スーパークラス、サブクラスでも共有される変数  
+`@@変数`で宣言できる
+
+```ruby
+class A
+  @@name = "A"
+  
+  def self.name
+    @@name
+  end
+  
+  def initialize(name)
+    @@name = name
+  end
+end
+
+class B < A
+  @@name = "B"
+  
+  def self.name
+    @@name
+  end
+end
+
+A.name # => B
+B.name # => B
+
+b = B.new("C")
+
+A.name # => C
+```
+
+主な用途はライブラリや設定情報の格納など
+
+### グローバル変数と組み込み変数
+
+`$変数名`はグルーバル変数の宣言  
+他の言語同様、複雑になるのでなるべく使用は避けましょう
+
+同様に`$stdin`などあらかじめ予約されている組み込み変数とかもある
