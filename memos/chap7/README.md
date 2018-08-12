@@ -327,3 +327,49 @@ privateとの違いはレシーバ付きかどうか
 メソッドだけでなく、インスタンス変数も継承されるので意図しないとことがあるので要注意
 
 ## 定数について
+
+クラス外部から定数を参照する場合は`クラス名::定数名`で呼び出せる  
+```ruby
+class Product
+  DEFAULT_VALUE = 0
+  
+  # これを指定すると外部から呼び出し不可になる
+  private_constant :DEFAULT_VALUE
+end
+```
+
+定数はクラス構文内でしか宣言できない(メソッド内では宣言できない)
+
+### Rubyの定数は再代入が可能
+
+可能です(警告は出るけど)　　
+再代入を不可にする場合は、クラスをfreezeする必要がある
+
+```ruby
+class Product
+  DEFAULT_VALUE = 0
+  
+  # これを指定すると外部から呼び出し不可になる
+  # private_constant :DEFAULT_VALUE
+end
+Product::DEFAULT_VALUE = 1000 
+# 凍結 
+Product.freeze
+Product::DEFAULT_VALUE # => FrozenError (can't modify frozen #<Class:Product>)
+```
+
+基本的には暗黙のルールでやらないでねという形にして、freezeは使わないようにしている
+
+### 破壊的メソッドで定数が変わるとき
+
+```ruby
+class Product
+  # 定数の値をfreezeすれば、破壊的メソッドでの事故も防げる
+  DEFAULT_VALUE = "hoge".freeze
+  # 配列やハッシュの場合は、配列全体と、各要素全てをfreezeする必要がある
+  DEFAULT_ARRAY = ["hoge", "moge", "fuga"].map(&:freeze).freeze
+  # この対応が必要なのはミュータブルなオブジェクトだけで、数値やboolean、シンボルなどは不要
+end
+Product::DEFAULT_VALUE.upcase! # => FrozenError (can't modify frozen String)
+
+```
