@@ -115,3 +115,40 @@ Rubyは全てがオブジェクト,
 モジュール内でインスタンス変数をいじると、include先のクラスのインスタンス変数も変更される  
 これはいい設計ではない
 
+# モジュールを使った名前空間の作成
+
+クラス名かぶることとかあるよね  
+モジュールで名前空間を分けることが可能
+
+```ruby
+module Baseball
+  # 野球のセカンド
+  class Second
+  end
+end
+
+module Clock
+  # 時間の秒
+  class Second
+  end
+end
+
+# 呼び出す時はモジュール名を指定して
+Baseball::Second.new
+Clock::Second.new 
+```
+
+名前空間だけでなくjavaでいうpackage的なまとまり単位で分けるために使っているよ
+
+ちなみにネストしなくてもできるよ
+
+```ruby
+# 先にモジュールを宣言しておいて
+module Baseball
+end
+
+# モジュール名指定でクラス宣言
+class Baseball::Second
+end
+```
+
