@@ -152,3 +152,81 @@ class Baseball::Second
 end
 ```
 
+# 関数や定数を提供するモジュール
+
+JavaでいうStaticクラスてきな使い方だね
+
+```ruby
+module Sample
+  def self.log(text)
+    "hoge"
+  end
+end
+
+# ミックスインせずに呼べる
+Sample.log("huu")
+```
+
+クラスメソッドと似ているけど、モジュールは全くインスタンスが作れないので  
+よりこういった用途に向いている
+
+## module_function
+
+ミックスインとしても使えるかつ、特異メソッドとしても使える
+モジュール関数というよ
+
+```ruby
+module SampleModule
+  def log(text)
+    "hoge"
+  end
+  
+  module_function :log
+end
+
+# ミックスインせずに呼べる
+SampleModule.log("huu")
+
+class SampleClass
+  include SampleModule
+  
+  def title
+    # ミックスいんもできる
+    log "moge"
+  end
+end
+```
+
+```ruby
+# 引数なしで呼んだ場合はこれいかに定義されたメソッドがモジュール関数になる
+module_function
+def hoge 
+end
+```
+
+## モジュールにも定数定義はできる
+
+クラスと変わらない
+
+```ruby
+module Sample
+  HOGE = "hoge"
+end
+Sample::HOGE
+```
+
+## モジュール関数の代表例(Mathモジュール)
+
+ミックスいんもできるし、そのまま使えるし
+
+```ruby
+Math.sqrt(2) # => 1.4142135623730951
+
+class Calc
+  include Math
+  # ミックスいんも可能
+  def calc n
+    sqrt n
+  end
+end
+```
