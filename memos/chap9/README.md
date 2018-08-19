@@ -150,5 +150,162 @@ valid?的な異常チェックをするメソッドでif使って対応したり
 例外を返したほうがいいよ、変なデフォルト値を返すより
 
 
+## ensure
+
+例外が発生しても発生しなくても絶対に処理したやつ(Javaでいうfinally)
+
+```ruby
+begin
+
+rescue
+  # 例外処理
+ensure
+  # 例外の有無に関わらず処理
+end
+```
+
+```ruby
+begin
+
+ensure
+  # 例外が発生してもそのまま例外あげるけど、その前に必ずやる処理
+end
+```
+
+Fileのオープンクローズとかでやられるよね
+```ruby
+file = File.open("sample.txt", 'w')
+
+begin
+  file << 'Hello'
+ensure
+  # 例外の有無に関わらずファイルクローズしたい
+  file.close
+end
+
+```
 
 
+### ensureじゃなくてブロック付きメソッドを使う
+
+上のファイルクローズの場合などはブロック付きでオープンすると暗黙的にクローズをやってくれる
+
+```ruby
+File.open("sample.txt", 'w') do |file|
+  file << 'Hello'
+end
+```
+
+Rubyではこういったブロック付きの呼び出しが多いので  
+ensureでやる前にこれでできないかかくにん
+
+## 例外が発生しなかった場合の処理(else)
+
+```ruby
+begin
+
+rescue
+  # 例外処理
+else
+  # 例外が発生しなかった場合の処理
+ensure
+  # どちらにしろやる処理 
+end
+```
+
+あんま使うことないけどね
+
+## 例外処理と戻り値
+
+例外処理の戻り値
+
+例外が発生しなかった場合はbegin節の最後の式が戻り値  
+例外が発生して、rescueされた場合はrescue節の最後の式が戻り値
+
+## 修飾子でrescue
+
+beginを省略できる
+
+```ruby
+# エラーが発生しない場合はそのまま値が、発生した場合はrescueに渡した値が返る
+1 / 1 rescue "エラーが発生したぞ" # => 1
+1 / 0 rescue "エラーが発生したぞ" # => "エラーが発生したぞ"
+```
+
+シンプルにできるけど、捕捉できるエラーの種類を設定できない(StandardErrorとそのサブクラスが捕捉される)  
+細かく制御するときはbegin〜end利用が良いでしょう
+
+## $! と$@
+
+rubyでは$!に最後に発生した例外、バックトレース情報を$@に格納している  
+`rescue => e`みたいにエラーオブジェクト捕捉できるし不要な気もする
+
+## 例外処理のbegin~end省略その２
+
+メソッドの最初から最後までが捕捉対象の場合は省略可能
+
+こういうメソッドが
+```ruby
+def hoge(n)
+  begin
+    a = n * 4
+    a / 0
+  rescue => e
+    puts "#{e.message}"
+  end
+end
+```
+こうかける
+```ruby
+def hoge(n)
+    a = n * 4
+    a / 0
+rescue => e
+    puts "#{e.message}"
+end
+```
+
+## 例外捕捉内でさらに例外発生させないように気をつけようね
+
+
+## 例外内でもう一度同じ例外を発生させる
+
+なんのために？  
+例えば例外発生してそのまま終了したいけど, 例外情報をメールで送りたい場合など
+
+ensureで代用できそうな気もするけどね
+
+```ruby
+begin
+  1 / 0
+rescue => e
+  # メールを送る
+  mail.send(e.message, e.backtrace)
+  # 捕捉した例外を再度発生させる
+  raise
+end
+```
+
+## 独自の例外クラスを作成
+
+StandardErrorを継承が一般的
+
+```ruby
+class HogeHogeError < StandardError
+  # 独自のクラス名与えるだけが目的なので、処理は書かない 
+end
+
+def hoge(n)
+  if (n.is_a?(String))
+    raise HogeHogeError
+  end
+end
+
+# =>
+hoge("hoge")
+Traceback (most recent call last):
+        3: from /usr/local/bin/irb:11:in `<main>'
+        2: from (irb):13
+        1: from (irb):9:in `hoge'
+HogeHogeError (HogeHogeError) 
+```
