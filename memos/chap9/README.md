@@ -60,4 +60,25 @@ end
 ```
 
 特定のエラーをキャッチした後にその他全ての例外みたいにやる時は
-上のようなコードになると思われる
+上のようなコードになると思われる(これはまだまだ冗長)
+
+```ruby
+begin
+  # 例外処理
+rescue ZeroDivisionError
+  puts "0除算"
+rescue NoMethodError
+  puts "存在しないメソッド呼び出し"
+rescue # StandardErrorの場合は指定がそもそも不要
+  puts "その他例外が発生しました"
+end
+```
+
+## retry
+
+例外発生時にもう一度処理をやり直す場合はretryキーワードをつける
+
+sample_retry.rbを参照
+
+継承関係を理解して書かないといけないですよ
+
