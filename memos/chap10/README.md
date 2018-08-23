@@ -31,3 +31,13 @@ end
 Procはつまり「手続き」のクラス
 
 proc_sampleを参考
+
+Procはブロックのオブジェクトなので、ブロック引数に渡したりもできる
+
+## Procの生成方法
+
+* `Proc.new`
+* `proc { ... }`
+* lambda構文 `->(a, b) { a + b }`
+* `lambda { |a, b| a + b }`
+
