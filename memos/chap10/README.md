@@ -41,3 +41,47 @@ Procはブロックのオブジェクトなので、ブロック引数に渡し�
 * lambda構文 `->(a, b) { a + b }`
 * `lambda { |a, b| a + b }`
 
+## Procをもう少し詳しく
+
+call以外にProcを呼ぶ方法
+
+other_proc.rb
+
+atomを使ってもっとシンプルにできるかくにん
+
+```ruby
+['ruby', 'java', 'perl'].map { |s| s.upcase }
+['ruby', 'java', 'perl'].map(&:upcase)
+# &:upcase は:upcaseに対してto_procを呼ぶ
+# つまりmapにProc(ブロック)が渡されることになる map { upcase }
+# 配列の各要素がレシーバーとして渡される 
+```
+
+## Procとクロージャー
+
+```ruby
+def generate_proc(array)
+  counter = 0
+  Proc.new do
+    counter += 10
+    array << counter
+  end
+end
+
+values = []
+sample_proc = generate_proc(values)
+puts values # => []
+
+sample_proc.call
+puts values # => [10]
+
+sample_proc.call
+puts values # => [10, 20]
+```
+
+メソッド生成時にコンテキストを保持しているメソッド  
+クロージャーっていうよ(変数の参照範囲を超えてアクセスできる)
+
+
+
+
