@@ -13,7 +13,10 @@ module Effects
 
   def self.loud(level)
     ->(words) do
-      words.split(' ').map { |word| word.upcase + '!' * level }.join(' ')
+      words
+          .split(' ')
+          .map { |word| word.upcase + '!' * level }
+          .join(' ')
     end
   end
 end
