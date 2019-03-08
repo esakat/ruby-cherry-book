@@ -1,0 +1,12 @@
+desc 'テスト用のタスクです'
+task :hello_world do
+  puts 'Hello, world!'
+end
+
+# 名前空間も使える
+namespace :my_tasks do
+  desc '足し算をするタスクです'
+  task :add_number do
+    puts 1 + 10
+  end
+end
